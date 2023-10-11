@@ -24,7 +24,7 @@ def create_cart(new_cart: NewCart):
 
     global card_id
     card_id += 1
-    cart_dictonary[card_id] = []
+    cart_dictonary[card_id] = {}
 
     return {"cart_id": card_id}
 
@@ -33,6 +33,7 @@ def create_cart(new_cart: NewCart):
 def get_cart(cart_id: int):
     """ """
 
+    global cart_dictonary
     cart = cart_dictonary[card_id]
 
     return cart
@@ -45,7 +46,10 @@ class CartItem(BaseModel):
 @router.post("/{cart_id}/items/{item_sku}")
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
-    get_cart(card_id).append(item_sku, cart_item)
+
+    global cart_dictonary
+    cart = cart_dictonary[card_id]
+    cart[item_sku] = cart_item.quantity
 
     return "OK"
 

@@ -21,8 +21,6 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
     """ """
     print(potions_delivered)
 
-    red_potions = 0
-
     for potion in potions_delivered:
         red_potions += potion.quantity
 
@@ -51,13 +49,18 @@ def get_bottle_plan():
     # Initial logic: bottle all barrels into red potions.
 
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text(""" SELECT num_red_ml FROM global_inventory """))
+        result = connection.execute(sqlalchemy.text(""" SELECT num_red_ml, 
+        num_green_ml, num_blue_ml FROM global_inventory """))
         first_row = result.first()
-        to_brew = int(first_row.num_red_ml / 100)
+        red_to_brew = int(first_row.num_red_ml / 100)
+        green_to_brew = int(first_row.num_red_ml / 100)
+        blue_to_brew = int(first_row.num_red_ml / 100)
+
+        bottle_plan = []
 
     return [
             {
                 "potion_type": [100, 0, 0, 0],
-                "quantity": to_brew,
+                "quantity": red_to_brew,
             }
         ]
