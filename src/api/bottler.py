@@ -111,7 +111,7 @@ def get_bottle_plan():
                 "quantity": green_to_brew,
             }
         )
-    if (blue_to_brew_to_brew > 0):    
+    if (blue_to_brew > 0):    
         bottle_plan.append(
             {
                 "potion_type": [0, 0, 100, 0],
