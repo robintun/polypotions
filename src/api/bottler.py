@@ -118,4 +118,4 @@ def get_bottle_plan():
                 "quantity": blue_to_brew,
             }
         )
-    return bottle_p
+    return bottle_plan
