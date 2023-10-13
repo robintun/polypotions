@@ -105,7 +105,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                         "quantity": 1,
                     }
                 )
-                connection.execute(sqlalchemy.text(""" UPDATE global_inventory SET gold = gold - {barrel.price} """))
+                connection.execute(sqlalchemy.text(""" UPDATE global_inventory SET gold = gold - :price """))
     return plan
     
     # return [
