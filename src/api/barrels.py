@@ -41,10 +41,11 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
 
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
-        SET num_red_ml = num_red_ml + :red_ml 
-            num_green_ml = num_green_ml + :green_ml
-            num_blue_ml = num_blue_ml + :blue_ml
-            gold = gold - :total_cost """))
+        SET num_red_ml = num_red_ml + :red_ml, 
+            num_green_ml = num_green_ml + :green_ml,
+            num_blue_ml = num_blue_ml + :blue_ml,
+            gold = gold - :total_cost """),
+        {"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "total_cost": total_cost})
 
         # Assignment 1
         # connection.execute(sqlalchemy.text(""" SELECT gold, num_red_ml FROM global_inventory """))
@@ -105,7 +106,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                         "quantity": 1,
                     }
                 )
-                connection.execute(sqlalchemy.text(""" UPDATE global_inventory SET gold = gold - :price """, price = barrel.price))
+                connection.execute(sqlalchemy.text(""" UPDATE global_inventory SET gold = gold - :price """, {"price": barrel.price}))
     return plan
     
     # return [
