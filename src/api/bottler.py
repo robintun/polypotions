@@ -57,21 +57,21 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
                 connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
                 SET num_red_ml = num_red_ml - """ + str(potion.quantity * 100)))
                 connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
-                SET num_red_potions = num_red_potions + {potion.quantity} """))
+                SET num_red_potions = num_red_potions + """ + str(potion.quantity)))
         
         elif (potion.potion_type == [0, 100, 0, 0]):
             with db.engine.begin() as connection:
                 connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
                 SET num_green_ml = num_green_ml - """ + str(potion.quantity * 100)))
                 connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
-                SET num_green_potions = num_green_potions + {potion.quantity} """))
+                SET num_green_potions = num_green_potions + """ + str(potion.quantity)))
 
         elif (potion.potion_type == [0, 0, 100, 0]):
             with db.engine.begin() as connection:
                 connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
                 SET num_blue_ml = num_blue_ml - """ + str(potion.quantity * 100)))
                 connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
-                SET num_blue_potions = num_blue_potions + {potion.quantity} """))
+                SET num_blue_potions = num_blue_potions + """ + str(potion.quantity)))
 
     return "OK"
 
