@@ -95,10 +95,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     plan = []
     with db.engine.begin() as connection:
         for barrel in wholesale_catalog:
-            # result = connection.execute(sqlalchemy.text(""" SELECT gold FROM global_inventory """))
-            # first_row = result.first()
-            # my_gold = first_row.gold
-            my_gold = connection.execute(sqlalchemy.text(""" SELECT gold FROM global_inventory """))
+            result = connection.execute(sqlalchemy.text(""" SELECT gold FROM global_inventory """))
+            first_row = result.first()
+            my_gold = first_row.gold
 
             if my_gold >= barrel.price:
                 plan.append(
