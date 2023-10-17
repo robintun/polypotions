@@ -115,9 +115,10 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     # return plan
     
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text(""" SELECT gold FROM global_inventory """))  
-    
-    my_gold = result.gold
+        global_inventory = connection.execute(sqlalchemy.text(""" SELECT gold FROM global_inventory """))  
+    global_first_row = global_first_row.first()
+
+    my_gold = global_first_row.gold
     my_plan = []
     quantity = {}
     counter = 0
@@ -142,6 +143,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 }
             )
     return my_plan
+    
     # return [
     #     {
     #         "sku": "SMALL_RED_BARREL",
