@@ -21,7 +21,7 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
     """ """
     print(potions_delivered)
 
-    for potion in potions_delivered:
+    # for potion in potions_delivered:
         # Assignment 1
         # if ((potion.potion_type)[0] == 100):
         #     with db.engine.begin() as connection:
@@ -32,7 +32,7 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
         #         connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
         #         SET num_red_potions = '%s', num_red_ml = '%s' """ % (updated_red_potions, updated_red_ml)))
 
-        # Attempt 1
+        # Attempt 1 for Assignment 2
         # if ((potion.potion_type)[0] == 100):
         #     with db.engine.begin() as connection:
         #         connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
@@ -52,26 +52,49 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
         #         connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
         #         SET num_blue_potions = num_blue_potions + """ + str(potion.quantity)))
 
-        if (potion.potion_type == [100, 0, 0, 0]):
-            with db.engine.begin() as connection:
-                connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
-                SET num_red_ml = num_red_ml - {potion.quantity * 100}""" ))
-                connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
-                SET num_red_potions = num_red_potions + {potion.quantity} """))
+        # Assignment 2
+        # if (potion.potion_type == [100, 0, 0, 0]):
+        #     with db.engine.begin() as connection:
+        #         connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
+        #         SET num_red_ml = num_red_ml - {potion.quantity * 100}""" ))
+        #         connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
+        #         SET num_red_potions = num_red_potions + {potion.quantity} """))
         
-        elif (potion.potion_type == [0, 100, 0, 0]):
-            with db.engine.begin() as connection:
-                connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
-                SET num_green_ml = num_green_ml - {potion.quantity * 100} """))
-                connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
-                SET num_green_potions = num_green_potions + {potion.quantity} """))
+        # elif (potion.potion_type == [0, 100, 0, 0]):
+        #     with db.engine.begin() as connection:
+        #         connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
+        #         SET num_green_ml = num_green_ml - {potion.quantity * 100} """))
+        #         connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
+        #         SET num_green_potions = num_green_potions + {potion.quantity} """))
 
-        elif (potion.potion_type == [0, 0, 100, 0]):
-            with db.engine.begin() as connection:
-                connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
-                SET num_blue_ml = num_blue_ml - {potion.quantity * 100} """))
-                connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
-                SET num_blue_potions = num_blue_potions + {potion.quantity} """ ))
+        # elif (potion.potion_type == [0, 0, 100, 0]):
+        #     with db.engine.begin() as connection:
+        #         connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
+        #         SET num_blue_ml = num_blue_ml - {potion.quantity * 100} """))
+        #         connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
+        #         SET num_blue_potions = num_blue_potions + {potion.quantity} """ ))
+    with db.engine.begin() as connection:
+        print(potions_delivered)
+
+        additional_potions = sum(potion.quantity for potion in potions_delivered)
+        red_ml = sum(potion.quantity * potion.potion_type[0] for potion in potions_delivered)
+        green_ml = sum(potion.quantity * potion.potion_type[1] for potion in potions_delivered)
+        blue_ml = sum(potion.quantity * potion.potion_type[2] for potion in potions_delivered)
+        dark_ml = sum(potion.quantity * potion.potion_type[3] for potion in potions_delivered)
+
+        for potion_delivered in potions_delivered:
+            connection.execute(sqlalchemy.text(""" UPDATE potions 
+                                                   SET inventory = inventory + :additional_potions
+                                                   WHERE type = :potion_type """),
+                                            [{"additional_potions": potion_delivered.quantity,
+                                            "potion_type": potion_delivered.potion_type}])
+            
+            connection.execute(sqlalchemy.text(""" UPDATE global_inventory SET
+                                                   red_ml = red_ml - :red_ml,
+                                                   green_ml = green_ml - :green_ml,
+                                                   blue_ml = blue_ml - :blue_ml,
+                                                   dark_ml = dark_ml - :dark_ml """),
+                            [{"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "dark_ml": dark_ml}])
 
     return "OK"
 

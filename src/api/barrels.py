@@ -29,6 +29,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     red_ml = 0
     green_ml = 0
     blue_ml = 0
+    dark_ml = 0
 
     for barrel in barrels_delivered:
         total_cost += barrel.price * barrel.quantity
@@ -38,6 +39,10 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
             green_ml += barrel.ml_per_barrel * barrel.quantity
         elif barrel.potion_type == [0, 0, 1, 0]:
             blue_ml += barrel.ml_per_barrel * barrel.quantity
+        elif barrel.potion_type == [0, 0, 0, 1]:
+            dark_ml += barrel.ml_per_barrel * barrel.quantity
+        else:
+            raise Exception("Invalid potion type")
 
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
@@ -45,7 +50,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
             num_green_ml = num_green_ml + :green_ml,
             num_blue_ml = num_blue_ml + :blue_ml,
             gold = gold - :total_cost """),
-        {"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "total_cost": total_cost})
+        [{"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "dark_ml": dark_ml, "total_cost": total_cost}])
 
         # Assignment 1
         # connection.execute(sqlalchemy.text(""" SELECT gold, num_red_ml FROM global_inventory """))
@@ -74,7 +79,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     #     if red_potion_quan < 10 and my_gold > wholesale_catalog[0].price:
     #         lets_buy = int(my_gold / wholesale_catalog[0].price)
 
-    # Attempt 1
+    # Attempt 1 for Assignment 2
     # with db.engine.begin() as connection:
     #     result = connection.execute(sqlalchemy.text(""" SELECT * FROM global_inventory """))
     # first_row = result.first()
@@ -92,23 +97,25 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
     # for catalog in wholesale_catalog:
 
-    plan = []
-    with db.engine.begin() as connection:
-        for barrel in wholesale_catalog:
-            result = connection.execute(sqlalchemy.text(""" SELECT gold FROM global_inventory """))
-            first_row = result.first()
-            my_gold = first_row.gold
+    # Assignment 2
+    # plan = []
+    # with db.engine.begin() as connection:
+    #     for barrel in wholesale_catalog:
+    #         result = connection.execute(sqlalchemy.text(""" SELECT gold FROM global_inventory """))
+    #         first_row = result.first()
+    #         my_gold = first_row.gold
 
-            if my_gold >= barrel.price:
-                plan.append(
-                    {
-                        "sku": barrel.sku,
-                        "quantity": 1,
-                    }
-                )
-                # connection.execute(sqlalchemy.text(f""" UPDATE global_inventory SET gold = gold - {barrel.price}"""))
-    return plan
+    #         if my_gold >= barrel.price:
+    #             plan.append(
+    #                 {
+    #                     "sku": barrel.sku,
+    #                     "quantity": 1,
+    #                 }
+    #             )
+    # return plan
     
+
+
     # return [
     #     {
     #         "sku": "SMALL_RED_BARREL",
