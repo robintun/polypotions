@@ -148,7 +148,7 @@ def get_bottle_plan():
         result = connection.execute(sqlalchemy.text(""" SELECT num_red_ml, 
         num_green_ml, num_blue_ml FROM global_inventory """))
         my_potion = connection.execute(sqlalchemy.text(""" SELECT * FROM potions """))
-    start = potions
+    start = my_potion
     inventory = 0
     my_plan = []
     quantity = {}
@@ -165,7 +165,7 @@ def get_bottle_plan():
     times = 0
     while (inventory < 200 and times < count):
         times = 0
-        potions = start
+        my_potion = start
         for potion in potions:
             if (inventory < 300 and potion.potion_type[0] < red_ml and potion.potion_type[1] < green_ml and potion.potion_type[2] < blue_ml and potion.potion_type[3] < dark_ml):
                 red_ml -= potion.potion_type[0]
@@ -176,7 +176,7 @@ def get_bottle_plan():
                 inventory += 1
             else:
                 times += 1
-    potions = start
+    my_potion = start
     for potion in potions:
         if (quantity[potioin.sku] != 0):
             my_plan.append(
