@@ -111,34 +111,82 @@ def get_bottle_plan():
 
     # Initial logic: bottle all barrels into red potions.
 
+    # Assignment 2
+    # with db.engine.begin() as connection:
+    #     result = connection.execute(sqlalchemy.text(""" SELECT num_red_ml, 
+    #     num_green_ml, num_blue_ml FROM global_inventory """))
+    # first_row = result.first()
+    # red_to_brew = int(first_row.num_red_ml / 100)
+    # green_to_brew = int(first_row.num_red_ml / 100)
+    # blue_to_brew = int(first_row.num_red_ml / 100)
+
+    # bottle_plan = []
+    # if (red_to_brew > 0):
+    #     bottle_plan.append(
+    #         {
+    #             "potion_type": [100, 0, 0, 0],
+    #             "quantity": red_to_brew,
+    #         }
+    #     )
+    # if (green_to_brew > 0):    
+    #     bottle_plan.append(
+    #         {
+    #             "potion_type": [0, 100, 0, 0],
+    #             "quantity": green_to_brew,
+    #         }
+    #     )
+    # if (blue_to_brew > 0):    
+    #     bottle_plan.append(
+    #         {
+    #             "potion_type": [0, 0, 100, 0],
+    #             "quantity": blue_to_brew,
+    #         }
+    #     )
+    # return bottle_plan
+
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(""" SELECT num_red_ml, 
         num_green_ml, num_blue_ml FROM global_inventory """))
-    first_row = result.first()
-    red_to_brew = int(first_row.num_red_ml / 100)
-    green_to_brew = int(first_row.num_red_ml / 100)
-    blue_to_brew = int(first_row.num_red_ml / 100)
+        my_potion = connection.execute(sqlalchemy.text(""" SELECT * FROM potions """))
+    start = potions
+    inventory = 0
+    my_plan = []
+    quantity = {}
+    red_ml = result.num_red_ml
+    green_ml = result.num_green_ml
+    blue_ml = result.num_blue_ml
+    dark_ml = result.num_dark_ml
+    count = 0
 
-    bottle_plan = []
-    if (red_to_brew > 0):
-        bottle_plan.append(
-            {
-                "potion_type": [100, 0, 0, 0],
-                "quantity": red_to_brew,
-            }
-        )
-    if (green_to_brew > 0):    
-        bottle_plan.append(
-            {
-                "potion_type": [0, 100, 0, 0],
-                "quantity": green_to_brew,
-            }
-        )
-    if (blue_to_brew > 0):    
-        bottle_plan.append(
-            {
-                "potion_type": [0, 0, 100, 0],
-                "quantity": blue_to_brew,
-            }
-        )
-    return bottle_plan
+    for potion in potions:
+        count += 1
+        inventory += potion.inventory
+        quantity[potion.sku] = 0
+    times = 0
+    while (inventory < 200 and times < count):
+        times = 0
+        potions = start
+        for potion in potions:
+            if (inventory < 300 and potion.potion_type[0] < red_ml and potion.potion_type[1] < green_ml and potion.potion_type[2] < blue_ml and potion.potion_type[3] < dark_ml):
+                red_ml -= potion.potion_type[0]
+                green_ml -= potion.potion_type[1]
+                blue_ml -= potion.potion_type[2]
+                dark_ml -= potion.potion_type[3]
+                quantity[potion.sku] += 1
+                inventory += 1
+            else:
+                times += 1
+    potions = start
+    for potion in potions:
+        if (quantity[potioin.sku] != 0):
+            my_plan.append(
+                {
+                    "potion_type": potion.potion_type,
+                    "quantity": quantity[potion.sku]
+                }
+            )
+    return my_plan
+
+
+
+
