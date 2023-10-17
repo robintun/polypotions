@@ -36,7 +36,7 @@ def get_inventory():
         total_potions += each_potion.inventory
 
     total_ml = global_first_row.num_red_ml + global_first_row.num_green_ml + global_first_row.num_blue_ml
-    my_gold = global_inventory.gold
+    my_gold = global_first_row.gold
 
     return {"number_of_potions": total_potions, "ml_in_barrels": total_ml, "gold": my_gold}
 
