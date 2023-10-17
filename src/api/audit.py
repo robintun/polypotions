@@ -30,11 +30,12 @@ def get_inventory():
         global_inventory = connection.execute(sqlalchemy.text(""" SELECT * FROM global_inventory """))
         my_catalog = connection.execute(sqlalchemy.text(""" SELECT inventory FROM potions """))
 
+    global_first_row = global_inventory.first()
     total_potions = 0
     for each_potion in my_catalog:
         total_potions += each_potion.inventory
-        
-    total_ml = global_inventory.num_red_ml + global_inventory.num_green_ml + global_inventory.num_blue_ml
+
+    total_ml = global_first_row.num_red_ml + global_first_row.num_green_ml + global_first_row.num_blue_ml
     my_gold = global_inventory.gold
 
     return {"number_of_potions": total_potions, "ml_in_barrels": total_ml, "gold": my_gold}
