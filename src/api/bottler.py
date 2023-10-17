@@ -145,29 +145,35 @@ def get_bottle_plan():
     # return bottle_plan
 
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text(""" SELECT num_red_ml, 
+        global_inventory = connection.execute(sqlalchemy.text(""" SELECT num_red_ml, 
         num_green_ml, num_blue_ml FROM global_inventory """))
         my_potion = connection.execute(sqlalchemy.text(""" SELECT * FROM potions """))
-    start = my_potion
-    inventory = 0
+    
+    global_first_row = global_inventory.first()
+    
     my_plan = []
     quantity = {}
-    red_ml = result.num_red_ml
-    green_ml = result.num_green_ml
-    blue_ml = result.num_blue_ml
-    dark_ml = result.num_dark_ml
+
+    start = my_potion
+    inventory = 0
+
+    red_ml = global_first_row.num_red_ml
+    green_ml = global_first_row.num_green_ml
+    blue_ml = global_first_row.num_blue_ml
+    dark_ml = global_first_row.num_dark_ml
     count = 0
 
-    for potion in potions:
+    for each_potion in potions:
         count += 1
-        inventory += potion.inventory
+        inventory += each_potion.inventory
         quantity[potion.sku] = 0
+
     times = 0
     while (inventory < 200 and times < count):
         times = 0
         my_potion = start
         for potion in potions:
-            if (inventory < 300 and potion.potion_type[0] < red_ml and potion.potion_type[1] < green_ml and potion.potion_type[2] < blue_ml and potion.potion_type[3] < dark_ml):
+            if (inventory < 200 and potion.potion_type[0] < red_ml and potion.potion_type[1] < green_ml and potion.potion_type[2] < blue_ml and potion.potion_type[3] < dark_ml):
                 red_ml -= potion.potion_type[0]
                 green_ml -= potion.potion_type[1]
                 blue_ml -= potion.potion_type[2]
@@ -176,13 +182,14 @@ def get_bottle_plan():
                 inventory += 1
             else:
                 times += 1
+
     my_potion = start
-    for potion in potions:
-        if (quantity[potioin.sku] != 0):
+    for each_potion in potions:
+        if (quantity[each_potion.sku] != 0):
             my_plan.append(
                 {
-                    "potion_type": potion.potion_type,
-                    "quantity": quantity[potion.sku]
+                    "potion_type": each_potion.potion_type,
+                    "quantity": quantity[each_potion.sku]
                 }
             )
     return my_plan
