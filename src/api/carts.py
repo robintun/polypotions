@@ -43,7 +43,7 @@ def get_cart(cart_id: int):
     # cart = cart_dictonary[card_id]
 
     with db.engine.begin() as connection:
-        cart = connection.execute(sqlalchemy.text(""" SELECT cart_id, potion_id, quantity
+        cart = connection.execute(sqlalchemy.text(""" SELECT cart_id, potion_id, quantity FROM cart_items
                                                       WHERE cart_id = :cart_id """),
                                                 [{"cart_id": card_id}])
 
