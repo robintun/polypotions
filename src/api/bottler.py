@@ -90,10 +90,10 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
                                             "potion_type": potion_delivered.potion_type}])
             
             connection.execute(sqlalchemy.text(""" UPDATE global_inventory SET
-                                                   red_ml = red_ml - :red_ml,
-                                                   green_ml = green_ml - :green_ml,
-                                                   blue_ml = blue_ml - :blue_ml,
-                                                   dark_ml = dark_ml - :dark_ml """),
+                                                   num_red_ml = num_red_ml - :red_ml,
+                                                   num_green_ml = num_green_ml - :green_ml,
+                                                   num_blue_ml = num_blue_ml - :blue_ml,
+                                                   num_dark_ml = num_dark_ml - :dark_ml """),
                             [{"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "dark_ml": dark_ml}])
 
     return "OK"
