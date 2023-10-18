@@ -146,54 +146,29 @@ def get_bottle_plan():
 
     with db.engine.begin() as connection:
         global_inventory = connection.execute(sqlalchemy.text(""" SELECT num_red_ml, 
-        num_green_ml, num_blue_ml FROM global_inventory """))
+        num_green_ml, num_blue_ml, dark_ml FROM global_inventory """))
         my_potion = connection.execute(sqlalchemy.text(""" SELECT * FROM potions """))
     
     global_first_row = global_inventory.first()
     
     my_plan = []
-    quantity = {}
-
-    start = my_potion
     inventory = 0
 
     red_ml = global_first_row.num_red_ml
     green_ml = global_first_row.num_green_ml
     blue_ml = global_first_row.num_blue_ml
     dark_ml = global_first_row.num_dark_ml
-    count = 0
 
-    for each_potion in potions:
-        count += 1
-        inventory += each_potion.inventory
-        quantity[potion.sku] = 0
-
-    times = 0
-    while (inventory < 200 and times < count):
-        times = 0
-        my_potion = start
-        for potion in potions:
-            if (inventory < 200 and potion.potion_type[0] < red_ml and potion.potion_type[1] < green_ml and potion.potion_type[2] < blue_ml and potion.potion_type[3] < dark_ml):
-                red_ml -= potion.potion_type[0]
-                green_ml -= potion.potion_type[1]
-                blue_ml -= potion.potion_type[2]
-                dark_ml -= potion.potion_type[3]
-                quantity[potion.sku] += 1
-                inventory += 1
-            else:
-                times += 1
-
-    my_potion = start
-    for each_potion in potions:
-        if (quantity[each_potion.sku] != 0):
+    for potion in my_potion:
+        if (potion.potion_type[0] <= red_ml and potion.potion_type[1] <= green_ml and potion.potion_type[2] <= blue_ml and potion.potion_type[3] <= dark_ml):
             my_plan.append(
                 {
-                    "potion_type": each_potion.potion_type,
-                    "quantity": quantity[each_potion.sku]
+                    "potion_type": potion.potion_type,
+                    "quantity": 1,
                 }
             )
+            red_ml -= potion.potion_type[0]
+            green_ml -= potion.potion_type[1]
+            blue_ml -= potion.potion_type[2]
+            dark_ml -= potion.potion_type[3]
     return my_plan
-
-
-
-
