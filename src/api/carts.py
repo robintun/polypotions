@@ -152,4 +152,4 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                                                SET gold = gold + :gold_paid """),
                                             [{"gold_paid": total_gold_paid}])
                                             
-    return {"total_potions_bought": total_potions_bought, "total_gold_paid": total_potions_bought * 50}
+    return {"total_potions_bought": total_potions_bought, "total_gold_paid": total_gold_paid}
