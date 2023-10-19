@@ -119,63 +119,30 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     global_first_row = global_inventory.first()
 
     my_gold = global_first_row.gold
-    
-    for barlees in wohoel shoe
-        if 
-        
+            
+    my_plan = []
+    quantity = {}
+    counter = 0
 
+    for barrel in wholesale_catalog:
+        quantity[barrel.sku] = 0
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # Attempt 1
-    # my_plan = []
-    # quantity = {}
-    # counter = 0
-
-    # for barrel in wholesale_catalog:
-    #     quantity[barrel.sku] = 0
-
-    # while (my_gold > 0 and counter < 10):
-    #     counter += 1
-    #     for barrel in wholesale_catalog:
-    #         if (my_gold >= barrel.price):
-    #             if ("SMALL" in barrel.sku):
-    #                 quantity[barrel.sku] = 1
-    #                 my_gold -= barrel.price
-    #                 barrel.quantity -= 1
-    # for barrel in wholesale_catalog:
-    #     if (quantity[barrel.sku] != 0):
-    #         my_plan.append (
-    #             {
-    #                 "sku": barrel.sku,
-    #                 "quantity": quantity[barrel.sku]
-    #             }
-    #         )
-    # return my_plan
+    while (my_gold > 0 and counter < 10):
+        counter += 1
+        for barrel in wholesale_catalog:
+            if (my_gold >= barrel.price):
+                quantity[barrel.sku] += 1
+                my_gold -= barrel.price
+                barrel.quantity -= 1
+    for barrel in wholesale_catalog:
+        if (quantity[barrel.sku] != 0):
+            my_plan.append (
+                {
+                    "sku": barrel.sku,
+                    "quantity": quantity[barrel.sku]
+                }
+            )
+    return my_plan
 
     # return [
     #     {
