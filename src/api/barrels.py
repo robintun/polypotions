@@ -134,7 +134,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             barrel.quantity -= 1
 
     for barrel in wholesale_catalog:
-        if ('MINI' in barrel.sku):
+        # if ('MINI' in barrel.sku):
             if (quantity[barrel.sku] != 0):
                 my_plan.append (
                     {
