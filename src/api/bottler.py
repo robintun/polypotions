@@ -171,4 +171,5 @@ def get_bottle_plan():
             green_ml -= potion.potion_type[1]
             blue_ml -= potion.potion_type[2]
             dark_ml -= potion.potion_type[3]
+    print(f"my bottler plan: {my_plan}")
     return my_plan

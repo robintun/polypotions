@@ -69,4 +69,5 @@ def get_catalog():
                     "potion_type": each_potion.potion_type,
                 }
             )
+    print(f"my catalog: {my_catalog}")
     return my_catalog
