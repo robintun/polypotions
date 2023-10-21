@@ -67,7 +67,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
 @router.post("/plan")
 def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
-    print(wholesale_catalog)
+    print(f"barrel catalog: {wholesale_catalog}")
 
     # Assignment 1
     # with db.engine.begin() as connection:
@@ -142,9 +142,10 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                         "quantity": quantity[barrel.sku]
                     }
                 )
+    print(f"my barrels plan: {my_plan}")
     return my_plan
 
-    # return [
+    # return 
     #     {
     #         "sku": "SMALL_RED_BARREL",
     #         "quantity": lets_buy,
