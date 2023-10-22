@@ -122,13 +122,13 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             
     my_plan = []
     quantity = {}
-    counter = 0
+    iteration = 0
 
     for barrel in wholesale_catalog:
         quantity[barrel.sku] = 0
 
-    while (my_gold > 0 and times < 10):
-        times += 1
+    while (my_gold > 0 and iteration < 10):
+        iteration += 1
         for barrel in wholesale_catalog:
             if (my_gold >= barrel.price):
                 if ('MINI' in barrel.sku):
