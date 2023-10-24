@@ -19,7 +19,7 @@ class PotionInventory(BaseModel):
 @router.post("/deliver")
 def post_deliver_bottles(potions_delivered: list[PotionInventory]):
     """ """
-    print(potions_delivered)
+    print(f"potions_delivered: {potions_delivered}")
 
     # for potion in potions_delivered:
         # Assignment 1
@@ -74,7 +74,7 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
         #         connection.execute(sqlalchemy.text(f""" UPDATE global_inventory 
         #         SET num_blue_potions = num_blue_potions + {potion.quantity} """ ))
     with db.engine.begin() as connection:
-        print(potions_delivered)
+        # print(f"potions_delivered: {potions_delivered}")
 
         additional_potions = sum(potion.quantity for potion in potions_delivered)
         red_ml = sum(potion.quantity * potion.potion_type[0] for potion in potions_delivered)
@@ -83,11 +83,11 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
         dark_ml = sum(potion.quantity * potion.potion_type[3] for potion in potions_delivered)
 
         for potion_delivered in potions_delivered:
-            connection.execute(sqlalchemy.text(""" UPDATE potions 
-                                                   SET inventory = inventory + :additional_potions
-                                                   WHERE potion_type = :potion_type """),
-                                            [{"additional_potions": potion_delivered.quantity,
-                                            "potion_type": potion_delivered.potion_type}])
+            # connection.execute(sqlalchemy.text(""" UPDATE potions 
+            #                                        SET inventory = inventory + :additional_potions
+            #                                        WHERE potion_type = :potion_type """),
+            #                                 [{"additional_potions": potion_delivered.quantity,
+            #                                 "potion_type": potion_delivered.potion_type}])
             
             # connection.execute(sqlalchemy.text(""" UPDATE global_inventory SET
             #                                        num_red_ml = num_red_ml - :red_ml,
@@ -101,8 +101,8 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
                                                    WHERE potions.potion_type = :potion_type """),
                                             [{"change_of_potion": potion_delivered.quantity, "potion_type": potion_delivered.potion_type}])
             
-            connection.execute(sqlalchemy.text(""" INSERT INTO ml_ledger (red_ml_change, green_ml_change, blue_ml_change, dark_ml_change)
-                                                   VALUES (:red_ml, :green_ml, :blue_ml, :dark_ml) """),
+        connection.execute(sqlalchemy.text(""" INSERT INTO ml_ledger (red_ml_change, green_ml_change, blue_ml_change, dark_ml_change)
+                                               VALUES (:red_ml, :green_ml, :blue_ml, :dark_ml) """),
                                             [{"red_ml": -red_ml, "green_ml": -green_ml, "blue_ml": -blue_ml, "dark_ml": -dark_ml}])
     return "OK"
 
@@ -152,32 +152,58 @@ def get_bottle_plan():
     #     )
     # return bottle_plan
 
+    # Assignment 3
+    # with db.engine.begin() as connection:
+    #     global_inventory = connection.execute(sqlalchemy.text(""" SELECT num_red_ml, 
+    #     num_green_ml, num_blue_ml, num_dark_ml FROM global_inventory """))
+    #     my_potion = connection.execute(sqlalchemy.text(""" SELECT * FROM potions """))
+    
+    # global_first_row = global_inventory.first()
+    
+    # my_plan = []
+    # inventory = 0
+
+    # red_ml = global_first_row.num_red_ml
+    # green_ml = global_first_row.num_green_ml
+    # blue_ml = global_first_row.num_blue_ml
+    # dark_ml = global_first_row.num_dark_ml
+
+    # for potion in my_potion:
+    #     if (potion.potion_type[0] <= red_ml and potion.potion_type[1] <= green_ml and potion.potion_type[2] <= blue_ml and potion.potion_type[3] <= dark_ml):
+    #         my_plan.append(
+    #             {
+    #                 "potion_type": potion.potion_type,
+    #                 "quantity": 1,
+    #             }
+    #         )
+    #         red_ml -= potion.potion_type[0]
+    #         green_ml -= potion.potion_type[1]
+    #         blue_ml -= potion.potion_type[2]
+    #         dark_ml -= potion.potion_type[3]
+    # print(f"my bottler plan: {my_plan}")
+    # return my_plan
+
     with db.engine.begin() as connection:
-        global_inventory = connection.execute(sqlalchemy.text(""" SELECT num_red_ml, 
-        num_green_ml, num_blue_ml, num_dark_ml FROM global_inventory """))
-        my_potion = connection.execute(sqlalchemy.text(""" SELECT * FROM potions """))
-    
-    global_first_row = global_inventory.first()
-    
-    my_plan = []
-    inventory = 0
+        red_ml, green_ml, blue_ml, dark_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(red_ml_change) AS red_ml, 
+                                                               SUM(green_ml_change) AS green_ml, 
+                                                               SUM(blue_ml_change) AS blue_ml, 
+                                                               SUM(dark_ml_change) AS dark_ml 
+                                                               FROM ml_ledge """)).scalar_one()
 
-    red_ml = global_first_row.num_red_ml
-    green_ml = global_first_row.num_green_ml
-    blue_ml = global_first_row.num_blue_ml
-    dark_ml = global_first_row.num_dark_ml
+        potions = connection.execute(sqlalchemy.text(""" SELECT potion_type
+                                                         FROM potions """)).all()
 
-    for potion in my_potion:
-        if (potion.potion_type[0] <= red_ml and potion.potion_type[1] <= green_ml and potion.potion_type[2] <= blue_ml and potion.potion_type[3] <= dark_ml):
+    for each_potion in my_potion:
+        if (each_potion.potion_type[0] <= red_ml and each_potion.potion_type[1] <= green_ml and each_potion.potion_type[2] <= blue_ml and each_potion.potion_type[3] <= dark_ml):
             my_plan.append(
                 {
-                    "potion_type": potion.potion_type,
+                    "potion_type": each_potion.potion_type,
                     "quantity": 1,
                 }
             )
-            red_ml -= potion.potion_type[0]
-            green_ml -= potion.potion_type[1]
-            blue_ml -= potion.potion_type[2]
-            dark_ml -= potion.potion_type[3]
+            red_ml -= each_potion.potion_type[0]
+            green_ml -= each_potion.potion_type[1]
+            blue_ml -= each_potion.potion_type[2]
+            dark_ml -= each_potion.potion_type[3]
     print(f"my bottler plan: {my_plan}")
     return my_plan
