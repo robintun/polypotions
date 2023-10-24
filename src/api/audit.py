@@ -26,18 +26,39 @@ def get_inventory():
 
     # return {"number_of_potions": total_potions, "ml_in_barrels": total_ml, "gold": my_gold}
 
+    # with db.engine.begin() as connection:
+    #     global_inventory = connection.execute(sqlalchemy.text(""" SELECT * FROM global_inventory """))
+    #     my_catalog = connection.execute(sqlalchemy.text(""" SELECT inventory FROM potions """))
+
+    # global_first_row = global_inventory.first()
+    # total_potions = 0
+    # for each_potion in my_catalog:
+    #     total_potions += each_potion.inventory
+
+    # total_ml = global_first_row.num_red_ml + global_first_row.num_green_ml + global_first_row.num_blue_ml
+    # my_gold = global_first_row.gold
+
+    # return {"number_of_potions": total_potions, "ml_in_barrels": total_ml, "gold": my_gold}
+
     with db.engine.begin() as connection:
-        global_inventory = connection.execute(sqlalchemy.text(""" SELECT * FROM global_inventory """))
-        my_catalog = connection.execute(sqlalchemy.text(""" SELECT inventory FROM potions """))
+        my_gold = connection.execute(sqlalchemy.text(""" SELECT SUM(change_of_gold) AS gold
+                                                         FROM gold_ledger """)).scalar_one()
+        my_red_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(red_ml_change) AS red
+                                                         FROM ml_ledger """)).scalar_one()
+        my_green_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(green_ml_change) AS green
+                                                         FROM ml_ledger """)).scalar_one()
+        my_blue_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(blue_ml_change) AS blue
+                                                         FROM ml_ledger """)).scalar_one() 
+        my_dark_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(dark_ml_change) AS dark
+                                                         FROM ml_ledger """)).scalar_one()
+        my_catalog = connection.execute(sqlalchemy.text(""" SELECT inventory FROM potions """))                                                       
 
-    global_first_row = global_inventory.first()
     total_potions = 0
-    for each_potion in my_catalog:
-        total_potions += each_potion.inventory
-
-    total_ml = global_first_row.num_red_ml + global_first_row.num_green_ml + global_first_row.num_blue_ml
-    my_gold = global_first_row.gold
-
+    total_ml = my_red_ml + my_green_ml + my_blue_ml + my_dark_ml
+    
+    for each_row in my_catalog:
+        total_potions += each_row.inventory
+    
     return {"number_of_potions": total_potions, "ml_in_barrels": total_ml, "gold": my_gold}
 
 class Result(BaseModel):
