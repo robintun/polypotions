@@ -41,19 +41,19 @@ def get_inventory():
     # return {"number_of_potions": total_potions, "ml_in_barrels": total_ml, "gold": my_gold}
 
     with db.engine.begin() as connection:
-        my_gold = connection.execute(sqlalchemy.text(""" SELECT SUM(change_of_gold) AS gold
+        my_gold = connection.execute(sqlalchemy.text(""" SELECT SUM(change_of_gold)
                                                          FROM gold_ledger """)).scalar_one()
-        my_red_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(red_ml_change) AS red
+        my_red_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(red_ml_change)
                                                          FROM ml_ledger """)).scalar_one()
-        my_green_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(green_ml_change) AS green
+        my_green_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(green_ml_change)
                                                          FROM ml_ledger """)).scalar_one()
-        my_blue_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(blue_ml_change) AS blue
+        my_blue_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(blue_ml_change)
                                                          FROM ml_ledger """)).scalar_one() 
-        my_dark_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(dark_ml_change) AS dark
+        my_dark_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(dark_ml_change)
                                                          FROM ml_ledger """)).scalar_one()
-        my_catalog = connection.execute(sqlalchemy.text(""" SELECT inventory FROM potions """))                                                       
+        total_potions = connection.execute(sqlalchemy.text(""" SELECT SUM(potion_change) 
+                                                               FROM potions_ledger """)).scalar_one()
 
-    total_potions = 0
     total_ml = my_red_ml + my_green_ml + my_blue_ml + my_dark_ml
     
     for each_row in my_catalog:
