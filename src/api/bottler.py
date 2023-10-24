@@ -183,6 +183,8 @@ def get_bottle_plan():
     # print(f"my bottler plan: {my_plan}")
     # return my_plan
 
+    my_plan = []
+
     with db.engine.begin() as connection:
         red_ml, green_ml, blue_ml, dark_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(red_ml_change) AS red_ml, 
                                                                SUM(green_ml_change) AS green_ml, 
