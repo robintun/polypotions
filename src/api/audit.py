@@ -51,7 +51,7 @@ def get_inventory():
                                                          FROM ml_ledger """)).scalar_one() 
         my_dark_ml = connection.execute(sqlalchemy.text(""" SELECT SUM(dark_ml_change)
                                                          FROM ml_ledger """)).scalar_one()
-        total_potions = connection.execute(sqlalchemy.text(""" SELECT SUM(potion_change) 
+        total_potions = connection.execute(sqlalchemy.text(""" SELECT SUM(change_of_potion) 
                                                                FROM potions_ledger """)).scalar_one()
 
     total_ml = my_red_ml + my_green_ml + my_blue_ml + my_dark_ml
