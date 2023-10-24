@@ -129,27 +129,51 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     #             SET gold = gold + """ + str(blue_potions_buying * 50)))
     # total_potions_bought = red_potions_buying + green_potions_buying + blue_potions_buying
 
-    total_potions_bought = 0
-    total_gold_paid = 0
+    # Assignment 3
+    # total_potions_bought = 0
+    # total_gold_paid = 0
+
+    # with db.engine.begin() as connection:
+    #     connection.execute(sqlalchemy.text(""" UPDATE potions
+    #                                            SET inventory = potions.inventory - cart_items.quantity
+    #                                            FROM cart_items
+    #                                            WHERE potions.id = cart_items.potion_id and cart_items.cart_id = :cart_id """),
+    #                                         [{"cart_id": cart_id}])
+    #     total_potions_bought = connection.execute(sqlalchemy.text(""" SELECT SUM(quantity) AS total_potions_bought
+    #                                                                   FROM cart_items
+    #                                                                   JOIN potions ON potions.id = cart_items.potion_id
+    #                                                                   WHERE cart_id = :cart_id """),
+    #                                                             [{"cart_id": cart_id}]).scalar_one()
+    #     total_gold_paid = connection.execute(sqlalchemy.text(""" SELECT SUM(quantity * price) AS total_gold_paid
+    #                                                                   FROM cart_items
+    #                                                                   JOIN potions ON potions.id = cart_items.potion_id
+    #                                                                   WHERE cart_id = :cart_id """),
+    #                                                             [{"cart_id": cart_id}]).scalar_one()
+    #     connection.execute(sqlalchemy.text(""" UPDATE global_inventory
+    #                                            SET gold = gold + :gold_paid """),
+    #                                         [{"gold_paid": total_gold_paid}])
 
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(""" UPDATE potions
-                                               SET inventory = potions.inventory - cart_items.quantity
-                                               FROM cart_items
-                                               WHERE potions.id = cart_items.potion_id and cart_items.cart_id = :cart_id """),
-                                            [{"cart_id": cart_id}])
         total_potions_bought = connection.execute(sqlalchemy.text(""" SELECT SUM(quantity) AS total_potions_bought
                                                                       FROM cart_items
                                                                       JOIN potions ON potions.id = cart_items.potion_id
                                                                       WHERE cart_id = :cart_id """),
                                                                 [{"cart_id": cart_id}]).scalar_one()
-        total_gold_paid = connection.execute(sqlalchemy.text(""" SELECT SUM(quantity * price) AS total_gold_paid
-                                                                      FROM cart_items
-                                                                      JOIN potions ON potions.id = cart_items.potion_id
-                                                                      WHERE cart_id = :cart_id """),
+        
+        total_gold_paid = connection.execute(sqlalchemy.text(""" SELECT SUM(cart_items.quantity * potions.price) AS total_gold_paid
+                                                                 FROM cart_items
+                                                                 JOIN potions ON potions.id = cart_items.potion_id
+                                                                 WHERE cart_id = :cart_id """),
                                                                 [{"cart_id": cart_id}]).scalar_one()
-        connection.execute(sqlalchemy.text(""" UPDATE global_inventory
-                                               SET gold = gold + :gold_paid """),
-                                            [{"gold_paid": total_gold_paid}])
+        
+        connection.execute(sqlalchemy.text(""" INSERT INTO gold_ledger (change_of_gold)
+                                               VALUES (:total_gold) """),
+                                        [{"total_gold": total_gold_paid}])
+
+        connection.execute(sqlalchemy.text(""" INSERT INTO potion_ledger (potion_id, change_of_potion)
+                                               SELECT cart_items.potion_id, (cart_items.quantity * -1)
+                                               FROM cart_items
+                                               WHERE cart_id = :cart_id """),
+                                        [{"cart_id": cart_id}])
 
     return {"total_potions_bought": total_potions_bought, "total_gold_paid": total_gold_paid}
