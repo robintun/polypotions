@@ -55,9 +55,14 @@ def get_catalog():
     my_catalog = []
 
     with db.engine.begin() as connection:
+        # result = connection.execute(sqlalchemy.text(""" SELECT sku,
+        # price,inventory,potion_type FROM potions """))
         result = connection.execute(sqlalchemy.text(""" SELECT sku,
-        price,inventory,potion_type FROM potions """))
-    
+                                                        SUM(potions_ledger.change_of_potion) AS inventory, price, potion_type 
+                                                        FROM potions
+                                                        JOIN potions_ledger ON potions_ledger.potion_id = potions.id
+                                                        GROUP BY potions.id """))
+
     for each_potion in result:
         if (each_potion.inventory > 0):
             my_catalog.append(
