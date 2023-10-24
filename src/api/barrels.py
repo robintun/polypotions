@@ -44,13 +44,22 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         else:
             raise Exception("Invalid potion type")
 
+    # with db.engine.begin() as connection:
+    #     connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
+    #     SET num_red_ml = num_red_ml + :red_ml, 
+    #         num_green_ml = num_green_ml + :green_ml,
+    #         num_blue_ml = num_blue_ml + :blue_ml,
+    #         gold = gold - :total_cost """),
+    #     [{"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "dark_ml": dark_ml, "total_cost": total_cost}])
+
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
-        SET num_red_ml = num_red_ml + :red_ml, 
-            num_green_ml = num_green_ml + :green_ml,
-            num_blue_ml = num_blue_ml + :blue_ml,
-            gold = gold - :total_cost """),
-        [{"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "dark_ml": dark_ml, "total_cost": total_cost}])
+        connection.execute(sqlalchemy.text(""" INSERT INTO gold_ledger (change_of_gold)
+                                               VALUES (:gold_paid) """),
+                                            [{"gold_paid": -gold_paid}])
+
+        connection.execute(sqlalchemy.text(""" INSERT INTO ml_ledger (red_ml_change, green_ml_change, blue_ml_change, dark_ml_change)
+                                               VALUES (:red_ml, :green_ml, :blue_ml, :dark_ml) """),
+                                            [{"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "dark_ml": dark_ml}])
 
         # Assignment 1
         # connection.execute(sqlalchemy.text(""" SELECT gold, num_red_ml FROM global_inventory """))
