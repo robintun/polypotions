@@ -44,6 +44,8 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         else:
             raise Exception("Invalid potion type")
 
+    print(f"gold paid: {total_cost} red_ml: {red_ml} blue_ml: {blue_ml} green_ml: {green_ml} dark_ml: {dark_ml}")
+
     # with db.engine.begin() as connection:
     #     connection.execute(sqlalchemy.text(""" UPDATE global_inventory 
     #     SET num_red_ml = num_red_ml + :red_ml, 
@@ -55,7 +57,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(""" INSERT INTO gold_ledger (change_of_gold)
                                                VALUES (:gold_paid) """),
-                                            [{"gold_paid": -gold_paid}])
+                                            [{"gold_paid": -total_cost}])
 
         connection.execute(sqlalchemy.text(""" INSERT INTO ml_ledger (red_ml_change, green_ml_change, blue_ml_change, dark_ml_change)
                                                VALUES (:red_ml, :green_ml, :blue_ml, :dark_ml) """),
@@ -123,12 +125,18 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     #             )
     # return plan
     
-    with db.engine.begin() as connection:
-        global_inventory = connection.execute(sqlalchemy.text(""" SELECT gold FROM global_inventory """))  
-    global_first_row = global_inventory.first()
+    # Assignment 3
+    # with db.engine.begin() as connection:
+    #     global_inventory = connection.execute(sqlalchemy.text(""" SELECT gold FROM global_inventory """))  
+    # global_first_row = global_inventory.first()
 
-    my_gold = global_first_row.gold
+    # my_gold = global_first_row.gold
+
+    with db.engine.begin() as connection:
+        gold = connection.execute(sqlalchemy.text(""" SELECT SUM(change_of_gold) 
+                                                         FROM gold_ledger """)).scalar_one  
             
+    my_gold = gold
     my_plan = []
     quantity = {}
     iteration = 0
