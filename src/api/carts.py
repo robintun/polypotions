@@ -170,7 +170,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                                                VALUES (:total_gold) """),
                                         [{"total_gold": total_gold_paid}])
 
-        connection.execute(sqlalchemy.text(""" INSERT INTO potion_ledger (potion_id, change_of_potion)
+        connection.execute(sqlalchemy.text(""" INSERT INTO potions_ledger (potion_id, change_of_potion)
                                                SELECT cart_items.potion_id, (cart_items.quantity * -1)
                                                FROM cart_items
                                                WHERE cart_id = :cart_id """),
