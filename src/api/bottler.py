@@ -219,10 +219,10 @@ def get_bottle_plan():
         result = connection.execute(
                 sqlalchemy.text("""
                                 SELECT 
-                                SUM(red_ml) as red_ml,
-                                SUM(green_ml) as green_ml,
-                                SUM(blue_ml) as blue_ml,
-                                SUM(dark_ml) as dark_ml
+                                SUM(red_ml_change) AS red_ml,
+                                SUM(green_ml_change) AS green_ml,
+                                SUM(blue_ml_change) AS blue_ml,
+                                SUM(dark_ml_change) AS dark_ml
                                 FROM ml_ledger
                                 """)).first()
         red_ml = result.red_ml
@@ -233,7 +233,7 @@ def get_bottle_plan():
         for potion in result:
             cur_pots = connection.execute(
                 sqlalchemy.text("""
-                                SELECT SUM(change_of_potion) as potion_change
+                                SELECT SUM(change_of_potion) AS potion_change
                                 FROM potions_ledger
                                 WHERE potion_id = :potion_id
                                 """),
