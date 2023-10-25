@@ -190,7 +190,7 @@ def get_bottle_plan():
                                                                SUM(green_ml_change) AS green_ml, 
                                                                SUM(blue_ml_change) AS blue_ml, 
                                                                SUM(dark_ml_change) AS dark_ml 
-                                                               FROM ml_ledge """)).scalar_one()
+                                                               FROM ml_ledger """)).scalar_one()
 
         potions = connection.execute(sqlalchemy.text(""" SELECT potion_type
                                                          FROM potions """)).all()
