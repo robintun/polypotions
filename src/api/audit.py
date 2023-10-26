@@ -56,6 +56,8 @@ def get_inventory():
 
     total_ml = my_red_ml + my_green_ml + my_blue_ml + my_dark_ml
     
+    print(f"audit_gold: {my_gold}, audit_potions: {total_potions}, audit_ml: {total_ml}")
+
     return {"number_of_potions": total_potions, "ml_in_barrels": total_ml, "gold": my_gold}
 
 class Result(BaseModel):
