@@ -132,35 +132,54 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
     # my_gold = global_first_row.gold
 
-    with db.engine.begin() as connection:
-        gold = connection.execute(sqlalchemy.text(""" SELECT SUM(change_of_gold) 
-                                                         FROM gold_ledger """)).scalar_one()  
+    # Working
+    # with db.engine.begin() as connection:
+    #     gold = connection.execute(sqlalchemy.text(""" SELECT SUM(change_of_gold) 
+    #                                                      FROM gold_ledger """)).scalar_one()  
             
-    my_gold = gold
+    # my_gold = gold
+    # my_plan = []
+    # quantity = {}
+    # iteration = 0
+
+    # for barrel in wholesale_catalog:
+    #     quantity[barrel.sku] = 0
+
+    # while (my_gold > 0 and iteration < 10):
+    #     iteration += 1
+    #     for barrel in wholesale_catalog:
+    #         if (my_gold >= barrel.price):
+    #             if ('MINI' in barrel.sku):
+    #                 quantity[barrel.sku] += 1
+    #                 my_gold -= barrel.price
+    #                 barrel.quantity -= 1
+
+    # for barrel in wholesale_catalog:
+    #     if (quantity[barrel.sku] != 0):
+    #         my_plan.append (
+    #             {
+    #                 "sku": barrel.sku,
+    #                 "quantity": quantity[barrel.sku]
+    #             }
+    #         )
+    # print(f"my barrels plan: {my_plan}")
+    # return my_plan
+
     my_plan = []
-    quantity = {}
-    iteration = 0
+
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(""" SELECT COALESCE(SUM(change_of_gold),0) FROM gold_ledger """))
+        gold = result.scalar_one()
 
     for barrel in wholesale_catalog:
-        quantity[barrel.sku] = 0
-
-    while (my_gold > 0 and iteration < 10):
-        iteration += 1
-        for barrel in wholesale_catalog:
-            if (my_gold >= barrel.price):
-                if ('MINI' in barrel.sku):
-                    quantity[barrel.sku] += 1
-                    my_gold -= barrel.price
-                    barrel.quantity -= 1
-
-    for barrel in wholesale_catalog:
-        if (quantity[barrel.sku] != 0):
-            my_plan.append (
+        if gold >= barrel.price:
+            my_plan.append(
                 {
-                    "sku": barrel.sku,
-                    "quantity": quantity[barrel.sku]
-                }
-            )
+                "sku": barrel.sku,
+                "quantity": 1,
+                })
+            gold = gold - barrel.price
+
     print(f"my barrels plan: {my_plan}")
     return my_plan
 
