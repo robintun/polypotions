@@ -8,6 +8,7 @@ from src import database as db
 from enum import Enum
 
 
+line_id = 0 # to use in search_orders function
 
 router = APIRouter(
     prefix="/carts",
@@ -25,7 +26,6 @@ class search_sort_order(str, Enum):
     asc = "asc"
     desc = "desc"   
 
-line_id = 0
 @router.get("/search/", tags=["search"])
 def search_orders(
     customer_name: str = "",
@@ -59,84 +59,6 @@ def search_orders(
     time is 5 total line items.
     """
 
-    # if search_page == "":
-    #     search_page = 0
-    # else:
-    #     search_page = int(search_page)
-
-    # if sort_order is search_sort_order.desc:
-    #     if sort_col is search_sort_options.customer_name:
-    #         order_by = sqlalchemy.desc(db.carts.c.customer)
-
-    #     elif sort_col is search_sort_options.item_sku:
-    #         order_by = sqlalchemy.desc(db.potions.c.sku)
-
-    #     elif sort_col is search_sort_options.line_item_total:
-    #         order_by = sqlalchemy.desc(db.cart_items.c.quantity)
-
-    #     elif sort_col is search_sort_options.timestamp:
-    #         order_by = sqlalchemy.desc(db.cart_items.c.created_at)
-
-    # elif sort_order is search_sort_order.asc:
-    #     if sort_col is search_sort_options.customer_name:
-    #         order_by = sqlalchemy.asc(db.carts.c.customer)
-
-    #     elif sort_col is search_sort_options.item_sku:
-    #         order_by = sqlalchemy.asc(db.potions.c.sku)
-
-    #     elif sort_col is search_sort_options.line_item_total:
-    #         order_by = sqlalchemy.asc(db.cart_items.c.quantity)
-
-    #     elif sort_col is search_sort_options.timestamp:
-    #         order_by = sqlalchemy.asc(db.cart_items.c.created_at)
-
-    # else:
-    #     assert False
-
-    # stmt = (sqlalchemy.select(db.carts.c.customer,
-    #                           db.cart_items.c.id,
-    #                           db.potions.c.sku,
-    #                           (db.cart_items.c.quantity * db.potions.c.price).label("total_gold_paid"),
-    #                           db.cart_items.c.created_at)
-    #                         .join(db.carts, db.carts.c.cart_id == db.cart_items.c.cart_id)
-    #                         .join(db.potions, db.potions.c.id == db.cart_items.c.potion_id)
-    #                         .offset(search_page)
-    #                         .limit(5)
-    #                         .order_by(order_by, db.cart_items.c.id))
-
-    # if customer_name != "":
-    #     stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
-
-    # if potion_sku != "":
-    #     stmt = stmt.where(db.potions.c.sku.ilike(f"%{sku}%"))
-
-    # with db.engine.connect() as conn:
-
-    #     result = conn.execute(stmt)
-
-    #     json = []
-    #     for each_row in result:
-    #         json.append(
-    #             {
-    #                 "line_item_id": each_row.id,
-    #                 "item_sku": each_row.sku,
-    #                 "customer_name": each_row.customer,
-    #                 "line_item_total": each_row.total,
-    #                 "timestamp": each_row.created_at,
-    #             }
-    #         )
-
-    # prev = ""
-    # next = ""
-
-    # if search_page-5 >= 0:
-    #     prev = str(search_page-5)
-
-    # if search_page+5 < count:
-    #     next = str(search_page+5)
-
-    # return {"previous": prev, "next": next, "results": json}
-
     limit = 5
     if search_page == "":
         offset = 0
@@ -145,49 +67,57 @@ def search_orders(
 
     with db.engine.connect() as connection:
 
-        if sort_order is search_sort_order.desc:
-            order = "DESC"
-        else:
+        if sort_order is search_sort_order.asc:
             order = "ASC"
+
+        elif sort_order is search_sort_order.desc:
+            order = "DESC"
 
         if sort_col is search_sort_options.customer_name:
             order_by = "carts.customer_name"
+
         elif sort_col is search_sort_options.item_sku:
             order_by = "potions.sku"
+
         elif sort_col is search_sort_options.timestamp:
             order_by = "cart_items.created_at"
+
         elif sort_col is search_sort_options.line_item_total:
             order_by = "potions.price * cart_items.quantity"
+
         else:
             assert False
 
         result = connection.execute(
-            sqlalchemy.text(
-                f"""
-                SELECT carts.cart_id AS cart_id, carts.customer_name AS name, cart_items.created_at AS time, 
-                    cart_items.potion_id AS item_id, cart_items.quantity AS quantity,
-                    potions.sku AS sku, potions.price AS price
-                FROM carts
-                JOIN cart_items ON cart_items.cart_id = carts.cart_id
-                JOIN potions ON potions.id = cart_items.potion_id
-                WHERE carts.customer_name ILIKE :name
-                AND potions.sku ILIKE :sku
-                ORDER BY {order_by} {order}
-                LIMIT :limit OFFSET :offset
-                """
-            ),({'name':f"%{customer_name}%", 'limit':limit, 'offset':offset,'sku':f"%{potion_sku}%"})).all()
+            sqlalchemy.text(f"""SELECT carts.cart_id AS cart_id, 
+                                 carts.customer_name AS name, 
+                                 cart_items.created_at AS time, 
+                                 cart_items.potion_id AS item_id, 
+                                 cart_items.quantity AS quantity,
+                                 potions.sku AS sku, 
+                                 potions.price AS price
+                                FROM carts
+                                JOIN cart_items ON cart_items.cart_id = carts.cart_id
+                                JOIN potions ON potions.id = cart_items.potion_id
+                                WHERE carts.customer_name ILIKE :name
+                                AND potions.sku ILIKE :sku
+                                ORDER BY {order_by} {order}
+                                LIMIT :limit OFFSET :offset"""),
+                    ({'name':f"%{customer_name}%", 'limit':limit, 'offset':offset,'sku':f"%{potion_sku}%"})).all()
 
         results = []
         global line_id
-        for row in result:
+        for each_row in result:
             line_id += 1
-            results.append({
+            results.append(
+                {
                     "line_item_id": line_id,
-                    "item_sku": f"{row.quantity} {row.sku} POTION",
-                    "customer_name": row.name,
-                    "line_item_total": row.quantity*row.price,
-                    "timestamp": row.time,
-                }) 
+                    "item_sku": f"{each_row.quantity} {each_row.sku} POTION",
+                    "customer_name": each_row.name,
+                    "line_item_total": each_row.quantity * each_row.price,
+                    "timestamp": each_row.time,
+                }
+            ) 
     
     if offset == 0:
         prev = ""
@@ -199,9 +129,8 @@ def search_orders(
     else:
         next = str(offset + 5)
 
-    json = {"previous": prev, "next": next,"results": results}
+    return {"previous": prev, "next": next, "results": results}
 
-    return json
     # return {
     #     "previous": "",
     #     "next": "",
