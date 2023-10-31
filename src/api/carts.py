@@ -25,6 +25,7 @@ class search_sort_order(str, Enum):
     asc = "asc"
     desc = "desc"   
 
+line_id = 0
 @router.get("/search/", tags=["search"])
 def search_orders(
     customer_name: str = "",
