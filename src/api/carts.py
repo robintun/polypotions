@@ -54,19 +54,97 @@ def search_orders(
     time is 5 total line items.
     """
 
-    return {
-        "previous": "",
-        "next": "",
-        "results": [
-            {
-                "line_item_id": 1,
-                "item_sku": "1 oblivion potion",
-                "customer_name": "Scaramouche",
-                "line_item_total": 50,
-                "timestamp": "2021-01-01T00:00:00Z",
-            }
-        ],
-    }
+    if search_page == "":
+        search_page = 0
+    else:
+        search_page = int(search_page)
+
+    if sort_order is search_sort_order.desc:
+        if sort_col is search_sort_options.customer_name:
+            order_by = sqlalchemy.desc(db.carts.c.customer)
+
+        elif sort_col is search_sort_options.item_sku:
+            order_by = sqlalchemy.desc(db.potions.c.sku)
+
+        elif sort_col is search_sort_options.line_item_total:
+            order_by = sqlalchemy.desc(db.cart_items.c.quantity)
+
+        elif sort_col is search_sort_options.timestamp:
+            order_by = sqlalchemy.desc(db.cart_items.c.created_at)
+
+    elif sort_order is search_sort_order.asc:
+        if sort_col is search_sort_options.customer_name:
+            order_by = sqlalchemy.asc(db.carts.c.customer)
+
+        elif sort_col is search_sort_options.item_sku:
+            order_by = sqlalchemy.asc(db.potions.c.sku)
+
+        elif sort_col is search_sort_options.line_item_total:
+            order_by = sqlalchemy.asc(db.cart_items.c.quantity)
+
+        elif sort_col is search_sort_options.timestamp:
+            order_by = sqlalchemy.asc(db.cart_items.c.created_at)
+
+    else:
+        assert False
+
+    stmt = (sqlalchemy.select(db.carts.c.customer,
+                              db.cart_items.c.id,
+                              db.potions.c.sku,
+                              (db.cart_items.c.quantity * db.potions.c.price).label("total_gold_paid"),
+                              db.cart_items.c.created_at)
+                            .join(db.carts, db.carts.c.cart_id == db.cart_items.c.cart_id)
+                            .join(db.potions, db.potions.c.id == db.cart_items.c.potion_id)
+                            .offset(search_page)
+                            .limit(5)
+                            .order_by(order_by, db.cart_items.c.id))
+
+    if customer_name != "":
+        stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
+
+    if potion_sku != "":
+        stmt = stmt.where(db.potions.c.sku.ilike(f"%{sku}%"))
+
+    with db.engine.connect() as conn:
+
+        result = conn.execute(stmt)
+
+        json = []
+        for each_row in result:
+            json.append(
+                {
+                    "line_item_id": each_row.id,
+                    "item_sku": each_row.sku,
+                    "customer_name": each_row.customer,
+                    "line_item_total": each_row.total,
+                    "timestamp": each_row.created_at,
+                }
+            )
+
+    prev = ""
+    next = ""
+
+    if search_page-5 >= 0:
+        prev = str(search_page-5)
+
+    if search_page+5 < count:
+        next = str(search_page+5)
+
+    return {"previous": prev, "next": next, "results": json}
+
+    # return {
+    #     "previous": "",
+    #     "next": "",
+    #     "results": [
+    #         {
+    #             "line_item_id": 1,
+    #             "item_sku": "1 oblivion potion",
+    #             "customer_name": "Scaramouche",
+    #             "line_item_total": 50,
+    #             "timestamp": "2021-01-01T00:00:00Z",
+    #         }
+    #     ],
+    # }
 
 class NewCart(BaseModel):
     customer: str
