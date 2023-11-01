@@ -183,6 +183,37 @@ def get_bottle_plan():
     # print(f"my bottler plan: {my_plan}")
     # return my_plan
 
+    # Assignment 5
+    # my_plan = []
+
+    # with db.engine.begin() as connection:
+    #     result = connection.execute(sqlalchemy.text(""" SELECT SUM(red_ml_change) AS red_ml, 
+    #                                                            SUM(green_ml_change) AS green_ml, 
+    #                                                            SUM(blue_ml_change) AS blue_ml, 
+    #                                                            SUM(dark_ml_change) AS dark_ml 
+    #                                                            FROM ml_ledger """)).first()
+    #     red_ml = result.red_ml
+    #     green_ml = result.green_ml
+    #     blue_ml = result.blue_ml
+    #     dark_ml = result.dark_ml
+
+    #     my_potions = connection.execute(sqlalchemy.text(""" SELECT * FROM potions """))
+
+    # for each_potion in my_potions:
+    #     if (each_potion.potion_type[0] <= red_ml and each_potion.potion_type[1] <= green_ml and each_potion.potion_type[2] <= blue_ml and each_potion.potion_type[3] <= dark_ml):
+    #         my_plan.append(
+    #             {
+    #                 "potion_type": each_potion.potion_type,
+    #                 "quantity": 1,
+    #             }
+    #         )
+    #         red_ml -= each_potion.potion_type[0]
+    #         green_ml -= each_potion.potion_type[1]
+    #         blue_ml -= each_potion.potion_type[2]
+    #         dark_ml -= each_potion.potion_type[3]
+    # print(f"my bottler plan: {my_plan}")
+    # return my_plan
+
     my_plan = []
 
     with db.engine.begin() as connection:
@@ -196,19 +227,55 @@ def get_bottle_plan():
         blue_ml = result.blue_ml
         dark_ml = result.dark_ml
 
-        my_potions = connection.execute(sqlalchemy.text(""" SELECT * FROM potions """))
+        my_potions = connection.execute(sqlalchemy.text(""" SELECT potion_type FROM potions """)).all()
 
-    for each_potion in my_potions:
-        if (each_potion.potion_type[0] <= red_ml and each_potion.potion_type[1] <= green_ml and each_potion.potion_type[2] <= blue_ml and each_potion.potion_type[3] <= dark_ml):
+        ml_list = [red_ml, green_ml, blue_ml, dark_ml]
+
+        for i in range(len(ml_list)):
+            if ml_list[i] > 200:
+                ml_list[i] -= 100 
+
+        for potion_type in my_potions:
+            potion_type = potion_type[0]
+            if (potion_type[0] != 100 and potion_type[1] != 100 and potion_type[2] != 100):
+                if (ml_list[0] >= potion_type[0] and ml_list[1] >= potion_type[1] and ml_list[2] >= potion_type[2]):
+                    qtyBasedonML = []
+                    for i in range(len(potion_type)): 
+                        if potion_type[i] != 0:
+                            qtyBasedonML.append(mlList[i] // potion_type[i])
+                    quantity = min(qtyBasedonML)   
+                    my_plan.append(
+                        {
+                        "potion_type": potion_type,
+                        "quantity": quantity
+                        }
+                    )
+                    for k in range(len(mlList)):
+                        mlList[k] -= potion_type[k] * quantity
+
+        for potion_type in my_potions:
+         print(potion_type)
+         potion_type = potion_type[0]
+         if potion_type[0] == 100 or\
+         potion_type[1] == 100 or \
+         potion_type[2] == 100:
+          if mlList[0] >= potion_type[0] and\
+          mlList[1] >= potion_type[1] and \
+          mlList[2] >= potion_type[2]:
+            qtyBasedonML = []
+            for i in range(len(potion_type)): 
+              if potion_type[i] != 0:
+                  print(i, potion_type[i], mlList[i])
+                  qtyBasedonML.append(mlList[i] // potion_type[i])
+            quantity = min(qtyBasedonML)   
             my_plan.append(
-                {
-                    "potion_type": each_potion.potion_type,
-                    "quantity": 1,
-                }
+                    {
+                        "potion_type": potion_type,
+                        "quantity": quantity
+                    }
             )
-            red_ml -= each_potion.potion_type[0]
-            green_ml -= each_potion.potion_type[1]
-            blue_ml -= each_potion.potion_type[2]
-            dark_ml -= each_potion.potion_type[3]
+            for k in range(len(mlList)):
+                mlList[k] -= potion_type[k] * quantity
+
     print(f"my bottler plan: {my_plan}")
     return my_plan
