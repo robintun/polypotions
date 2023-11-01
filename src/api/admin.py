@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 from src.api import auth
 
+import sqlalchemy
+from src import database as db
+
 router = APIRouter(
     prefix="/admin",
     tags=["admin"],
@@ -25,10 +28,10 @@ def reset():
         connection.execute(sqlalchemy.text(""" INSERT INTO ml_ledger (red_ml_change, green_ml_change, 
                                                blue_ml_change, dark_ml_change)
                                                VALUES (0,0,0,0) """))
-        # connection.execute(sqlalchemy.text(""" INSERT INTO potions_ledger (potion_id, change_of_potion)
-        #                                        SELECT potions.id, 0 
-        #                                        FROM potions
-        #                                        GROUP BY potions.id """))
+        connection.execute(sqlalchemy.text(""" INSERT INTO potions_ledger (potion_id, change_of_potion)
+                                               SELECT potions.id, 0 
+                                               FROM potions
+                                               GROUP BY potions.id """))
 
     return "OK"
 
