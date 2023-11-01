@@ -270,19 +270,19 @@ def get_bottle_plan():
                 bottled = 0
 
                 
-                while (total_potions < 300 and bottled < bottles_per_type and potion.type[0] <= red_ml and potion.type[1] <= green_ml and potion.type[2] <= blue_ml and potion.type[3] <= dark_ml):
+                while (total_potions < 300 and bottled < bottles_per_type and potion.potion_type[0] <= red_ml and potion.potion_type[1] <= green_ml and potion.potion_type[2] <= blue_ml and potion.potion_type[3] <= dark_ml):
                     
-                    red_ml -= potion.type[0]
-                    green_ml -= potion.type[1]
-                    blue_ml -= potion.type[2]
-                    dark_ml -= potion.type[3]
+                    red_ml -= potion.potion_type[0]
+                    green_ml -= potion.potion_type[1]
+                    blue_ml -= potion.potion_type[2]
+                    dark_ml -= potion.potion_type[3]
                     bottled += 1
 
                     total_potions += 1
                 
                 if bottled > 0:
                     bottle = {
-                        "potion_type": potion.type,
+                        "potion_type": potion.potion_type,
                         "quantity": bottled
                     }
 
