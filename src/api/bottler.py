@@ -242,7 +242,7 @@ def get_bottle_plan():
                     qtyBasedonML = []
                     for i in range(len(potion_type)): 
                         if potion_type[i] != 0:
-                            qtyBasedonML.append(mlList[i] // potion_type[i])
+                            qtyBasedonML.append(ml_list[i] // potion_type[i])
                     quantity = min(qtyBasedonML)   
                     my_plan.append(
                         {
@@ -250,8 +250,8 @@ def get_bottle_plan():
                         "quantity": quantity
                         }
                     )
-                    for k in range(len(mlList)):
-                        mlList[k] -= potion_type[k] * quantity
+                    for k in range(len(ml_list)):
+                        ml_list[k] -= potion_type[k] * quantity
 
         for potion_type in my_potions:
          print(potion_type)
