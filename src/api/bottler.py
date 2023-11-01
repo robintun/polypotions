@@ -229,7 +229,7 @@ def get_bottle_plan():
 
         my_potions = connection.execute(sqlalchemy.text(""" SELECT potion_type FROM potions """)).all()
 
-        ml_list = [red_ml, green_ml, blue_ml]
+        ml_list = [red_ml, green_ml, blue_ml, dark_ml]
 
         for i in range(len(ml_list)):
             if ml_list[i] > 200:
