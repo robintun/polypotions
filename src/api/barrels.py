@@ -172,7 +172,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         gold = result.scalar_one()
 
     for barrel in wholesale_catalog:
-        if gold >= barrel.price:
+        if gold >= barrel.price and barrel.ml_per_barrel <= 500:
             my_plan.append(
                 {
                 "sku": barrel.sku,
