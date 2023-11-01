@@ -259,14 +259,14 @@ def get_bottle_plan():
          if potion_type[0] == 100 or\
          potion_type[1] == 100 or \
          potion_type[2] == 100:
-          if mlList[0] >= potion_type[0] and\
-          mlList[1] >= potion_type[1] and \
-          mlList[2] >= potion_type[2]:
+          if ml_list[0] >= potion_type[0] and\
+          ml_list[1] >= potion_type[1] and \
+          ml_list[2] >= potion_type[2]:
             qtyBasedonML = []
             for i in range(len(potion_type)): 
               if potion_type[i] != 0:
-                  print(i, potion_type[i], mlList[i])
-                  qtyBasedonML.append(mlList[i] // potion_type[i])
+                  print(i, potion_type[i], ml_list[i])
+                  qtyBasedonML.append(ml_list[i] // potion_type[i])
             quantity = min(qtyBasedonML)   
             my_plan.append(
                     {
@@ -274,8 +274,8 @@ def get_bottle_plan():
                         "quantity": quantity
                     }
             )
-            for k in range(len(mlList)):
-                mlList[k] -= potion_type[k] * quantity
+            for k in range(len(ml_list)):
+                ml_list[k] -= potion_type[k] * quantity
 
     print(f"my bottler plan: {my_plan}")
     return my_plan
