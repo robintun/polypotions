@@ -96,7 +96,7 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory]):
             #                                        num_dark_ml = num_dark_ml - :dark_ml """),
             #                 [{"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "dark_ml": dark_ml}])
             connection.execute(sqlalchemy.text(""" INSERT INTO potions_ledger (change_of_potion, potion_id)
-                                                   SELECT :change_of_potion, potions.id
+                                                   SELECT :change_of_potion, id
                                                    FROM potions
                                                    WHERE potions.potion_type = :potion_type """),
                                             [{"change_of_potion": potion_delivered.quantity, "potion_type": potion_delivered.potion_type}])
