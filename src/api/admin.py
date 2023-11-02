@@ -19,7 +19,7 @@ def reset():
     """
 
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(""" TRUNCATE cart, cart_items, 
+        connection.execute(sqlalchemy.text(""" TRUNCATE carts, cart_items, 
                                                gold_ledger, ml_ledger, potions_ledger """))
         
         connection.execute(sqlalchemy.text(""" INSERT INTO gold_ledger (change_of_gold)
