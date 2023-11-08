@@ -216,144 +216,144 @@ def get_bottle_plan():
 
     # Logic 2
 
-    bottles = []
+    # bottles = []
 
-    with db.engine.begin() as connection:
-            
-            # get potions' quantities and types
-            result = connection.execute(sqlalchemy.text(""" SELECT potions.potion_type, SUM(potions_ledger.change_of_potion) AS quantity
-                                                            FROM potions
-                                                            JOIN potions_ledger ON potions.id = potions_ledger.potion_id
-                                                            GROUP BY potions.potion_type """))       
-            
-            potions = result.fetchall()
-            potion_types = len(potions)
-
-            result = connection.execute(sqlalchemy.text(""" SELECT SUM(change_of_potion) AS total_potions FROM potions_ledger """))
-            first_row = result.first()
-            total_potions = first_row.total_potions
-
-            print("potion types: ", potion_types)
-            
-            # get available ml
-            ml = connection.execute(sqlalchemy.text(""" SELECT SUM(red_ml_change) AS red_ml, 
-                                                               SUM(green_ml_change) AS green_ml, 
-                                                               SUM(blue_ml_change) AS blue_ml, 
-                                                               SUM(dark_ml_change) AS dark_ml
-                                                        FROM ml_ledger """))
-            
-            ml = ml.first()
-            red_ml = ml.red_ml
-            green_ml = ml.green_ml
-            blue_ml = ml.blue_ml
-            dark_ml = ml.dark_ml
-
-            print("in bottler, available mL: red: ", red_ml, " green: ", green_ml, " blue: ", blue_ml, " dark: ", dark_ml)
-            total_ml = red_ml + green_ml + blue_ml + dark_ml
-            max_bottles = (total_ml) // 100
-            
-            bottles_per_type = max_bottles//potion_types
-
-            if bottles_per_type == 0 and max_bottles > 0:
-                bottles_per_type = max_bottles
-            elif red_ml > 0 and green_ml == 0 and blue_ml == 0:
-                bottles_per_type = max_bottles
-            elif green_ml > 0 and red_ml == 0 and blue_ml == 0:
-                bottles_per_type = max_bottles
-            elif blue_ml > 0 and green_ml == 0 and red_ml == 0:
-                bottles_per_type = max_bottles  
-
-            print("max bottles: ", max_bottles," bottles per type: ", bottles_per_type)
-            
-            for potion in potions:
-                print(potion)
-                bottled = 0
-
-                
-                while (total_potions < 300 and bottled < bottles_per_type and potion.potion_type[0] <= red_ml and potion.potion_type[1] <= green_ml and potion.potion_type[2] <= blue_ml and potion.potion_type[3] <= dark_ml):
-                    
-                    red_ml -= potion.potion_type[0]
-                    green_ml -= potion.potion_type[1]
-                    blue_ml -= potion.potion_type[2]
-                    dark_ml -= potion.potion_type[3]
-                    bottled += 1
-
-                    total_potions += 1
-                
-                if bottled > 0:
-                    bottle = {
-                        "potion_type": potion.potion_type,
-                        "quantity": bottled
-                    }
-
-                    bottles.append(bottle)                
-            
-    print(f"my bottler plan: {bottles}")
-
-    return bottles
-
-    # Logic 3
     # with db.engine.begin() as connection:
-    #     red_ml = connection.execute(sqlalchemy.text("""
-    #                                               SELECT SUM(red_ml_change)
-    #                                               FROM ml_ledger
-    #                                               """)).scalar_one()
-    #     green_ml = connection.execute(sqlalchemy.text("""
-    #                                               SELECT SUM(green_ml_change)
-    #                                               FROM ml_ledger
-    #                                               """)).scalar_one()
-    #     blue_ml = connection.execute(sqlalchemy.text("""
-    #                                               SELECT SUM(blue_ml_change)
-    #                                               FROM ml_ledger
-    #                                               """)).scalar_one()
-    #     dark_ml = connection.execute(sqlalchemy.text("""
-    #                                               SELECT SUM(dark_ml_change)
-    #                                               FROM ml_ledger
-    #                                               """)).scalar_one()
-    #     inventory = connection.execute(sqlalchemy.text("""
-    #                                                   SELECT SUM(change_of_potion)
-    #                                                   FROM potions_ledger
-    #                                                   """)).scalar_one()
-    #     potions = connection.execute(sqlalchemy.text("""SELECT potions.id, potions.potion_type, potions.sku, SUM(potions_ledger.change_of_potion) as inventory
-    #                                                  FROM potions
-    #                                                  JOIN potions_ledger ON potions.id = potions_ledger.potion_id
-    #                                                  GROUP BY potions.id
-    #                                                  """)).all()
-    #     potion_lst = [pot for pot in potions]
-    #     plan = []
-    #     quants = {}
-    #     count = 0
+            
+    #         # get potions' quantities and types
+    #         result = connection.execute(sqlalchemy.text(""" SELECT potions.potion_type, SUM(potions_ledger.change_of_potion) AS quantity
+    #                                                         FROM potions
+    #                                                         JOIN potions_ledger ON potions.id = potions_ledger.potion_id
+    #                                                         GROUP BY potions.potion_type """))       
+            
+    #         potions = result.fetchall()
+    #         potion_types = len(potions)
 
-    #     for potion in potion_lst:
-    #         count += 1
-    #         quants[potion.sku] = 0
-    #     times = 0
-    #     while(inventory < 300 and times < count):
-    #         times = 0
-    #         for potion in potion_lst:
-    #             inv = connection.execute(sqlalchemy.text("""
-    #                                                     SELECT SUM(change_of_potion)
-    #                                                     FROM potions_ledger
-    #                                                     WHERE potions_ledger.potion_id = :id
-    #                                                     """),
-    #                                                     [{"id": potion.id}]).scalar_one()
-    #             if(inventory < 300 and inv + quants[potion.sku] < 45 and potion.potion_type[0] <= red_ml and potion.potion_type[1] <= green_ml and potion.potion_type[2] <= blue_ml and potion.potion_type[3] <= dark_ml):
+    #         result = connection.execute(sqlalchemy.text(""" SELECT SUM(change_of_potion) AS total_potions FROM potions_ledger """))
+    #         first_row = result.first()
+    #         total_potions = first_row.total_potions
+
+    #         print("potion types: ", potion_types)
+            
+    #         # get available ml
+    #         ml = connection.execute(sqlalchemy.text(""" SELECT SUM(red_ml_change) AS red_ml, 
+    #                                                            SUM(green_ml_change) AS green_ml, 
+    #                                                            SUM(blue_ml_change) AS blue_ml, 
+    #                                                            SUM(dark_ml_change) AS dark_ml
+    #                                                     FROM ml_ledger """))
+            
+    #         ml = ml.first()
+    #         red_ml = ml.red_ml
+    #         green_ml = ml.green_ml
+    #         blue_ml = ml.blue_ml
+    #         dark_ml = ml.dark_ml
+
+    #         print("in bottler, available mL: red: ", red_ml, " green: ", green_ml, " blue: ", blue_ml, " dark: ", dark_ml)
+    #         total_ml = red_ml + green_ml + blue_ml + dark_ml
+    #         max_bottles = (total_ml) // 100
+            
+    #         bottles_per_type = max_bottles//potion_types
+
+    #         if bottles_per_type == 0 and max_bottles > 0:
+    #             bottles_per_type = max_bottles
+    #         elif red_ml > 0 and green_ml == 0 and blue_ml == 0:
+    #             bottles_per_type = max_bottles
+    #         elif green_ml > 0 and red_ml == 0 and blue_ml == 0:
+    #             bottles_per_type = max_bottles
+    #         elif blue_ml > 0 and green_ml == 0 and red_ml == 0:
+    #             bottles_per_type = max_bottles  
+
+    #         print("max bottles: ", max_bottles," bottles per type: ", bottles_per_type)
+            
+    #         for potion in potions:
+    #             print(potion)
+    #             bottled = 0
+
+                
+    #             while (total_potions < 300 and bottled < bottles_per_type and potion.potion_type[0] <= red_ml and potion.potion_type[1] <= green_ml and potion.potion_type[2] <= blue_ml and potion.potion_type[3] <= dark_ml):
+                    
     #                 red_ml -= potion.potion_type[0]
     #                 green_ml -= potion.potion_type[1]
     #                 blue_ml -= potion.potion_type[2]
     #                 dark_ml -= potion.potion_type[3]
-    #                 quants[potion.sku] += 1
-    #                 inventory += 1
-    #             else:
-    #                 times += 1
+    #                 bottled += 1
 
-    # for potion in potion_lst:
-    #     if(quants[potion.sku] != 0):
-    #         plan.append(
-    #             {
-    #                 "potion_type": potion.potion_type,
-    #                 "quantity": quants[potion.sku],
-    #             }
-    #         )
+    #                 total_potions += 1
+                
+    #             if bottled > 0:
+    #                 bottle = {
+    #                     "potion_type": potion.potion_type,
+    #                     "quantity": bottled
+    #                 }
+
+    #                 bottles.append(bottle)                
+            
+    # print(f"my bottler plan: {bottles}")
+
+    # return bottles
+
+    # Logic 3
+    with db.engine.begin() as connection:
+        red_ml = connection.execute(sqlalchemy.text("""
+                                                  SELECT SUM(red_ml_change)
+                                                  FROM ml_ledger
+                                                  """)).scalar_one()
+        green_ml = connection.execute(sqlalchemy.text("""
+                                                  SELECT SUM(green_ml_change)
+                                                  FROM ml_ledger
+                                                  """)).scalar_one()
+        blue_ml = connection.execute(sqlalchemy.text("""
+                                                  SELECT SUM(blue_ml_change)
+                                                  FROM ml_ledger
+                                                  """)).scalar_one()
+        dark_ml = connection.execute(sqlalchemy.text("""
+                                                  SELECT SUM(dark_ml_change)
+                                                  FROM ml_ledger
+                                                  """)).scalar_one()
+        inventory = connection.execute(sqlalchemy.text("""
+                                                      SELECT SUM(change_of_potion)
+                                                      FROM potions_ledger
+                                                      """)).scalar_one()
+        potions = connection.execute(sqlalchemy.text("""SELECT potions.id, potions.potion_type, potions.sku, SUM(potions_ledger.change_of_potion) as inventory
+                                                     FROM potions
+                                                     JOIN potions_ledger ON potions.id = potions_ledger.potion_id
+                                                     GROUP BY potions.id
+                                                     """)).all()
+        potion_lst = [pot for pot in potions]
+        plan = []
+        quants = {}
+        count = 0
+
+        for potion in potion_lst:
+            count += 1
+            quants[potion.sku] = 0
+        times = 0
+        while(inventory < 300 and times < count):
+            times = 0
+            for potion in potion_lst:
+                inv = connection.execute(sqlalchemy.text("""
+                                                        SELECT SUM(change_of_potion)
+                                                        FROM potions_ledger
+                                                        WHERE potions_ledger.potion_id = :id
+                                                        """),
+                                                        [{"id": potion.id}]).scalar_one()
+                if(inventory < 300 and inv + quants[potion.sku] < 45 and potion.potion_type[0] <= red_ml and potion.potion_type[1] <= green_ml and potion.potion_type[2] <= blue_ml and potion.potion_type[3] <= dark_ml):
+                    red_ml -= potion.potion_type[0]
+                    green_ml -= potion.potion_type[1]
+                    blue_ml -= potion.potion_type[2]
+                    dark_ml -= potion.potion_type[3]
+                    quants[potion.sku] += 1
+                    inventory += 1
+                else:
+                    times += 1
+
+    for potion in potion_lst:
+        if(quants[potion.sku] != 0):
+            plan.append(
+                {
+                    "potion_type": potion.potion_type,
+                    "quantity": quants[potion.sku],
+                }
+            )
     
-    # return plan
+    return plan
